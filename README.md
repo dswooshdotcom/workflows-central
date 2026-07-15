@@ -12,15 +12,16 @@ Central reusable workflows for the GitOps non-containerized artifact system. All
     open_config_pr.py      ← Python: opens the config-repo promotion PR after a release
 
 docs/
-  00-architecture.md       ← system overview, flow diagram, scaling strategy
-  01-ado-to-github-equivalents.md  ← direct ADO → GitHub translation table
-  02-setup-guide.md        ← step-by-step setup for this POC
-  03-secrets-auth.md       ← PAT vs GitHub App, secret scopes
-  04-azure-oidc.md         ← 2027 Azure migration: OIDC federated credentials
-  05-versioning.md         ← @main vs @v1 vs SHA pinning, required workflows
-  06-security.md           ← self-hosted runner hardening, branch protection, CODEOWNERS
-  07-adding-a-new-app.md   ← developer onboarding playbook
-  08-self-hosted-runners.md ← Windows runner install, labels, groups, maintenance
+  00-architecture.md              ← system overview, flow diagram, scaling strategy
+  01-ado-to-github-equivalents.md ← direct ADO → GitHub translation table
+  02-setup-guide.md               ← step-by-step setup for this POC
+  03-secrets-auth.md              ← PAT vs GitHub App, secret scopes
+  04-azure-oidc.md                ← 2027 Azure migration: OIDC federated credentials
+  05-versioning.md                ← @main vs @v1 vs SHA pinning, required workflows
+  06-security.md                  ← self-hosted runner hardening, branch protection, CODEOWNERS
+  07-adding-a-new-app.md          ← developer onboarding playbook
+  08-self-hosted-runners.md       ← Windows runner install, labels, groups, maintenance
+  09-current-state.md             ← what's deployed, what's wired, what's left to do
 ```
 
 ## Quick reference
@@ -63,6 +64,7 @@ jobs:
 
 ## Start here
 
+→ [Current state — what's live, what's wired, what's left](docs/09-current-state.md)  
 → [Architecture overview](docs/00-architecture.md)  
 → [Setup guide](docs/02-setup-guide.md)  
 → [ADO → GitHub equivalents](docs/01-ado-to-github-equivalents.md)
