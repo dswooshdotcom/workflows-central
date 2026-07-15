@@ -1,0 +1,77 @@
+name: Build Artifact (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      app-name:
+        description: "Logical name of the app (matches config-repo apps/<app-name>/)"
+        required: true
+        type: string
+      build-command:
+        description: "Shell command that produces artifact.zip in the workspace root"
+        required: false
+        type: string
+        default: "zip -r artifact.zip src/"
+      artifact-path:
+        description: "Path of the built artifact to release"
+        required: false
+        type: string
+        default: "artifact.zip"
+      config-repo:
+        description: "owner/repo of the config repo to PR against"
+        required: false
+        type: string
+        default: "dswooshdotcom/config-repo"
+    secrets:
+      CONFIG_REPO_TOKEN:
+        description: "PAT (or GitHub App token) with contents:write + pull_requests:write on config-repo"
+        required: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release-tag: ${{ steps.tag.outputs.tag }}
+      release-url: ${{ steps.release.outputs.url }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute release tag
+        id: tag
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          TIMESTAMP=$(date -u +%Y%m%d%H%M%S)
+          echo "tag=${{ inputs.app-name }}-${SHORT_SHA}-${TIMESTAMP}" >> "$GITHUB_OUTPUT"
+
+      - name: Build artifact
+        run: ${{ inputs.build-command }}
+
+      - name: Publish GitHub Release
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "${{ inputs.app-name }} ${{ steps.tag.outputs.tag }}"
+          files: ${{ inputs.artifact-path }}
+          generate_release_notes: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyGithub
+        run: pip install PyGithub --quiet
+
+      - name: Open config-repo PR (promote to dev)
+        env:
+          CONFIG_REPO_TOKEN: ${{ secrets.CONFIG_REPO_TOKEN }}
+          CONFIG_REPO: ${{ inputs.config-repo }}
+          APP_NAME: ${{ inputs.app-name }}
+          RELEASE_TAG: ${{ steps.tag.outputs.tag }}
+          SOURCE_REPO: ${{ github.repository }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: python ${{ github.workspace }}/.github/scripts/open_config_pr.py
